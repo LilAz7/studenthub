@@ -6,7 +6,7 @@ using Module;
 
 namespace Components;
 
-public partial class Pks5Context : DbContext
+public partial class StudenthubContext : DbContext
 {
     public Pks5Context()
     {
