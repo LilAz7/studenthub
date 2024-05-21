@@ -1,0 +1,84 @@
+﻿@page "/Login"
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Components;
+
+
+<div class="text-center">Войти в профиль</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Log">
+            <div>ErrorMessage</div>
+            <div asp-validation-summary="ModelOnly" class="text-damger"></div>
+            <div class="form-group">
+                <label asp-for="Login" class="control-label">Логин</label>
+                <input asp-for="Login" class="form-control" />
+                <span asp-validation-for="Login" class="text-danger"></span>            
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label">Пароль</label>
+                <input type="password" asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+             <div class="form-group">
+                 <input type="submit" value="Login" class="btn btn-primary" />
+             </div>
+        </form>
+    </div>
+</div>
+
+@code {
+    public class User
+    {
+        public string? Login { get; set; }
+        public string? Password { get; set; }
+    }
+
+    public class UserService
+    {
+        // Create user
+        private List<User> _users = new List<User>
+        {
+            new User { Login = "111", Password = "111"}
+        };
+
+        // method Authenticate
+        public User Authenticate(string username, string password)
+        {
+            return _users.SingleOrDefault(u => u.Login == username && u.Password == password);
+        }
+    }
+
+    private readonly UserService _userService;
+    private NavigationManager _navigationManager;
+
+    public Login(UserService userService, NavigationManager navigationManager)
+    {
+        _userService = userService;
+        _navigationManager = navigationManager;
+    }
+
+    private string username;
+    private string password;
+
+    private string errorMessage;
+
+    
+    private async Task<string?> Log()
+    {
+        var user = _userService.Authenticate(username, password);
+
+        if (user != null)
+        {
+            _navigationManager.NavigateTo("~/Profile/Profile");
+            return null;
+        }
+        else
+        {
+            errorMessage = "Неверный логин или пароль";
+            return null;
+        }
+    }
+
+
+}

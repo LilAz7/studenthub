@@ -1,0 +1,39 @@
+﻿@page "/Lecturer"
+@using PKS5._5;
+
+<h3>Lecturer</h3>
+
+@if (lecturers != null)
+{
+    <ul>
+        @foreach (var lecturer in lecturers)
+        {
+            <li>@lecturer.LastName</li>
+            <li>@lecturer.Name</li>
+            <li>@lecturer.MiddleName</li>
+            <li>@lecturer.Subject</li>
+            <li>@lecturer.Department</li>
+        }
+    </ul>
+}
+
+@code {
+
+    public class Lecturer
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? MiddleName { get; set; }
+        public string? LastName { get; set; }
+        public string? Subject { get; set; }
+        public string? Department { get; set; }
+    }
+
+    List<Lecturer> lecturers;
+
+    protected override Task OnInitializedAsync()
+    {
+        lecturers = Pks5Context.Lecturers.ToList();
+        return base.OnInitializedAsync();
+    }
+}

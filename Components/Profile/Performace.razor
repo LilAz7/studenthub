@@ -1,0 +1,86 @@
+﻿@page "/Performace"
+@using PKS5._5;
+@using System.Collections.Generic;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Npgsql;
+
+
+<h3>Performace</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Semester</th>
+            <th>DisciplineName</th>
+            <th>Mark</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var performance in Model.Performances)
+        {
+            <tr>
+                <td>@performance.Semester</td>
+                <td>@performance.DisciplineName</td>
+                <td>@performance.Mark</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+
+    
+    public class PerformanceModel : PageModel
+    {
+        public List<Performance> Performances { get; set; }
+
+        
+        public void OnGet()
+        {
+            Performances = GetPerformancesFromDataSource();
+        }
+
+        
+        private List<Performance> GetPerformancesFromDataSource()
+        {
+            string connectionString = "Host=localhost;Username=postgres;Password=1973;Database=pks5";
+
+            List<Performance> performances = new List<Performance>();
+
+            using (var connection = new NpgsqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using (var command = new NpgsqlCommand("SELECT semester, discipline_name, mark FROM performances", connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Performance performance = new Performance
+                                {
+                                    Semester = reader.GetString(0),
+                                    DisciplineName = reader.GetString(1),
+                                    Mark = reader.GetInt32(2)
+                                };
+
+                            performances.Add(performance);
+                        }
+                    }
+                }
+            }
+
+            return performances;
+        }
+    }
+
+
+    
+    public class Performance
+    {
+        public string? Semester { get; set; }
+        public string? DisciplineName { get; set; }
+        public int Mark { get; set; }
+    }
+}

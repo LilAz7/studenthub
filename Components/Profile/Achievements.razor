@@ -1,0 +1,87 @@
+﻿@page "/Achievements"
+@using PKS5._5;
+@using System.Collections.Generic;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.AspNetCore.Mvc.RazorPages;
+@using Npgsql;
+
+
+<h3>Achievements</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var achievement in Model.Achievements)
+        {
+            <tr>
+                <td>@achievement.Date</td>
+                <td>@achievement.Type</td>
+                <td>@achievement.Description</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    
+    public class AchievementModel : PageModel
+    {
+        public List<Achievement> Achievements { get; set; }
+
+        
+        public void OnGet()
+        {
+            Achievements = GetPerformancesFromDataSource();
+        }
+
+        
+        private List<Achievement> GetPerformancesFromDataSource()
+        {
+            string connectionString = "Host=localhost;Username=postgres;Password=1973;Database=pks5";
+
+            List<Achievement> achievements = new List<Achievement>();
+
+            using (var connection = new NpgsqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using (var command = new NpgsqlCommand("SELECT date, Type, description FROM achievements", connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Achievement achuevements = new Achievement
+                                {
+                                    Date = reader.GetDateTime(0),
+                                    Type = reader.GetString(1),
+                                    Description = reader.GetString(2)
+                                };
+
+                            achievements.Add(achuevements);
+                        }
+                    }
+                }
+            }
+            return achievements;
+        }
+    }
+
+    
+    public class Achievement
+    {
+        public DateOnly Date { get; set; }
+
+        public string Type { get; set; } = null!;
+
+        public int Id { get; set; }
+
+        public string Description { get; set; } = null!;
+    }
+}
